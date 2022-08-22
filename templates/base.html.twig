@@ -1,0 +1,117 @@
+{% set menus = menu_service.findAll %}
+
+<!DOCTYPE html>
+<html lang="fr">
+    <head>
+        <meta charset="UTF-8">
+        <title>Blog v3 !- {% block title %}{% endblock %}</title>
+        <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>⚫️</text></svg>">
+        {# Run `composer require symfony/webpack-encore-bundle` to start using Symfony UX #}
+        {% block stylesheets %}
+            {{ encore_entry_link_tags('app') }}
+        {% endblock %}
+
+        {% block javascripts %}
+            {{ encore_entry_script_tags('app') }}
+        {% endblock %}
+    </head>
+
+
+    <body style='background: url("/uploads/beautiful-emerald-lake-yoho-national-park-british-columbia-canada-131985-177-0674f52a-5b4e-44f5-b4fc-b0790251c162.jpg"); '  class="" url("/uploads/ricinus-communis-plante-medicinale-2-2-720x380-b7c7dcc3-61a3-4c85-bd49-ea8f67c30c3a.jpg")>
+        {% if is_granted('ROLE_AUTHOR') %}
+
+        <nav class="py-2 bg-dark border-bottom">
+            <div class="container d-flex flex-wrap">
+                <div class="dropdown">
+                    <a class="nav-link link-light px-2 dropdown-toggle text-white rc_white" href="#" role="button" id="dropdownAdminLink" data-bs-toggle="dropdown" aria-expanded="false">
+                        Mon blog
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownAdminLink">
+                        <li><a class="dropdown-item" href="{{ path('admin')}}">Tableau de bord</a>
+                        {% if is_granted('ROLE_ADMIN') %}
+  
+                        <li><a class="dropdown-item" href="{{ ea_admin_url('MenuCrudController')}}">Menus</a></li>
+                        {% endif %}
+                    
+                    
+                    </ul>
+                </div>
+                <div class="dropdown">
+                    <a class="nav-link link-light px-2 dropdown-toggle text-white" href="#" role="button" id="dropdownAdminLink" data-bs-toggle="dropdown" aria-expanded="false">
+                        Ajouter
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownAdminLink">
+                        <li><a class="dropdown-item" href="{{ea_admin_url('ArticleCrudController', 'new')}}">Article</a>
+                        <li><a class="dropdown-item" href="{{ea_admin_url('PageCrudController', 'new')}}">Page</a></li>
+                    </ul>
+                </div>
+
+            </div>
+        </nav>
+        {% endif %}
+
+
+        <div class="container">
+            <header class="d-flex flex-wrap justify-content-center py-3 mb-4 border-bottom">
+               
+                <a class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-dark text-decoration-none" href="{{ path('app_home')}}" >
+                    <span class="fs-4 rc_white"> Mon blog</span>
+                </a>
+
+                <ul class="nav nav-pills align-items-center">
+
+
+
+                    {% for menu in menus %}
+                        {% if menu.subMenus.count > 0 %}
+                            <div class="dropdown">
+                                <a class="nav-link link-light px-2 dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <span class="menu-label text-primary" >{{ menu.name }}</span>
+                                </a>
+                                <ul class="dropdown-menu">
+                                    {% for subMenu in menu.subMenus %}
+                                        <li><a class="dropdown-item" href="{{ subMenu|menuLink }}">{{ subMenu.name }}</a></li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        {% else %}
+                            <li class="nav-item">
+                                <a href="{{ menu|menuLink }}" class="nav-link">
+                                    <span class="menu-label">{{ menu.name }}</span>
+                                </a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                    {% if not is_granted('IS_AUTHENTICATED_FULLY') %}
+
+                    <li class="nav-item"><a class="nav-link text-dark" href="{{path('app_register')}}">S'inscire</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{path('app_login')}}">Se connecter</a></li>
+                    
+                    {% else %}
+
+                        <div class="dropdown">
+                            <a class="nav-link  px-2 dropdown-toggle text-dark" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                {{ app.user.username|capitalize }}
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <a class="dropdown-item" href="{{path('app_profile', { username: app.user.username }) }}">Mon profil</a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="{{ path('app_logout') }}">Déconnexion</a>
+                                </li>
+                            </ul>
+                        </div>
+                    {% endif %}
+                </ul>
+
+            </header>
+        </div>
+
+
+        <div class="main_body">
+            {% block body %}{% endblock %}
+        </div>
+        {% include 'footer.html.twig'  %}
+    </body>
+</html>
